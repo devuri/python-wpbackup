@@ -6,7 +6,7 @@
 
 ## How to run
 ```shell
-python wpbackup
+$ python wpbackup
 ```
 
 Assumptions
