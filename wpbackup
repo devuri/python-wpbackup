@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+
+'''
+WordPress Backup Script.
+ # Copyright (c) 2020 Uriel Wilson.
+ # https://urielwilson.com
+'''
+
+# Assumptions
+#
+# The WordPress Installation is in the public directory
+# wp-content is in the public directory website root
+# Python 2.7 is installed
+#
+# backups will be saved in 'public/wp-content/py-backup'
+# we will attempt to create the dir if it does not exist
+# you can change this by updating the backup_dir var
+# sitename var should be updated to match your website
+#
+# how to run
+# $ python wpbackup
+
+import os
+import subprocess
+import uuid
+from time import gmtime, strftime
+
+# main class
+class Backup(object):
+
+    # setup
+    sitename    = "urielwilson"
+    wp_dir      = "public"
+    backup_dir  = "public/wp-content/py-backup"
+    bakuptime   = strftime("%Y-%m-%d", gmtime())
+    backupfile  = sitename + "-backup-" + bakuptime
+
+    # init
+    def __init__(self):
+        self.site   = self.sitename
+        self.dir    = self.backup_dir
+        self.wp     = self.wp_dir
+        self.time   = self.bakuptime
+        self.backup = self.backupfile
+
+    def run(self):
+        self.do_backup()
+
+    # create dir
+    def create_dir(self,dir):
+        try:
+            os.makedirs(dir)
+        except OSError as err:
+            if err.errno == errno.EEXIST:
+                print("error creating directory")
+            else:
+                print("directory has been created")
+
+    def do_backup(self):
+        print("Zip file for public")
+        # create backup dir if we dont have one
+        if not os.path.exists(self.dir):
+            self.create_dir(self.dir)
+
+        print("Lets Zip the public ")
+        #zip_backup = 'zip -r sitebackup public'
+        zip_backup = "zip -r " + self.backup + " " + self.wp
+        subprocess.call(zip_backup, shell=True)
+
+        print("Okay Lets move the Zip backup to the wp-content dir")
+        #move_backup = "mv sitebackup.zip public/wp-content/py-backup"
+        move_backup = "mv " + self.backup + ".zip " + self.backup_dir
+        subprocess.call(move_backup, shell=True)
+
+        self.backup_completed()
+
+    # complete success
+    def backup_completed(self):
+        print("The Backup has completed successfully")
+
+
+# ok lets do the backup
+def main():
+    backup = Backup()
+    backup.run()
+
+if __name__ == '__main__':
+    main()
